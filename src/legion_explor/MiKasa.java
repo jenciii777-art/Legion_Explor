@@ -1,4 +1,7 @@
 package legion_explor;
+import java.util.Stack;
+import javax.swing.JOptionPane;
+import java.util.EmptyStackException;
 
 public class MiKasa extends javax.swing.JFrame {
 
@@ -6,7 +9,7 @@ public class MiKasa extends javax.swing.JFrame {
     double num1 = 0, num2 = 0, resultado = 0;
     String operacion = "";
     String displayCompleto = "";
-       double memoria = 0;
+    double memoria = 0;
 
     public MiKasa() {
         initComponents();
@@ -32,8 +35,119 @@ public class MiKasa extends javax.swing.JFrame {
         }
         return esNumero(texto) ? texto : "";
     }
-    
-    @SuppressWarnings("unchecked")
+
+    private void agregarNumeroConMultiplicacionImplicita(String numero) {
+        if (!displayCompleto.isEmpty()) {
+            char ultimoCaracter = displayCompleto.charAt(displayCompleto.length() - 1);
+            // Si el último carácter es un paréntesis derecho, agregar multiplicación
+            if (ultimoCaracter == ')') {
+                displayCompleto += " × " + numero;
+            } else {
+                displayCompleto += numero;
+            }
+        } else {
+            displayCompleto += numero;
+        }
+        Ventana.setText(displayCompleto);
+    }
+
+    // Método principal para evaluar expresiones
+    private double evaluarExpresion(String expresion) {
+        try {
+            // Limpiar y preparar la expresión
+            expresion = expresion.replace(" ", "")
+                                .replace("×", "*")
+                                .replace("÷", "/")
+                                .replace("^", "^")  // Cambiado de ** a ^
+                                .replace("ⁿ√", "root");
+            
+            return evaluar(expresion);
+        } catch (Exception e) {
+            throw new RuntimeException("Error evaluando expresión: " + expresion);
+        }
+    }
+
+    // Método recursivo para evaluar la expresión
+    private double evaluar(String expresion) {
+        Stack<Double> numeros = new Stack<>();
+        Stack<Character> operadores = new Stack<>();
+        
+        try {
+            for (int i = 0; i < expresion.length(); i++) {
+                char c = expresion.charAt(i);
+                
+                if (Character.isDigit(c) || c == '.') {
+                    // Leer número completo
+                    StringBuilder sb = new StringBuilder();
+                    while (i < expresion.length() && 
+                          (Character.isDigit(expresion.charAt(i)) || expresion.charAt(i) == '.')) {
+                        sb.append(expresion.charAt(i++));
+                    }
+                    i--;
+                    numeros.push(Double.parseDouble(sb.toString()));
+                } 
+                else if (c == '(') {
+                    operadores.push(c);
+                } 
+                else if (c == ')') {
+                    while (!operadores.isEmpty() && operadores.peek() != '(') {
+                        numeros.push(aplicarOperador(operadores.pop(), numeros.pop(), numeros.pop()));
+                    }
+                    operadores.pop(); // Remover '('
+                } 
+                else if (esOperador(c)) {
+                    while (!operadores.isEmpty() && precedencia(c) <= precedencia(operadores.peek())) {
+                        numeros.push(aplicarOperador(operadores.pop(), numeros.pop(), numeros.pop()));
+                    }
+                    operadores.push(c);
+                }
+            }
+            
+            while (!operadores.isEmpty()) {
+                numeros.push(aplicarOperador(operadores.pop(), numeros.pop(), numeros.pop()));
+            }
+            
+            return numeros.pop();
+        } catch (EmptyStackException e) {
+            throw new RuntimeException("Expresión inválida");
+        }
+    }
+
+    // Verificar si es operador - CORREGIDO
+    private boolean esOperador(char c) {
+        return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
+    }
+
+    // Precedencia de operadores - CORREGIDO
+    private int precedencia(char op) {
+        switch (op) {
+            case '+':
+            case '-':
+                return 1;
+            case '*':
+            case '/':
+                return 2;
+            case '^': // Potencia (cambiamos ** por ^)
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
+    // Aplicar operador - CORREGIDO
+    private double aplicarOperador(char op, double b, double a) {
+        switch (op) {
+            case '+': return a + b;
+            case '-': return a - b;
+            case '*': return a * b;
+            case '/': 
+                if (b == 0) throw new RuntimeException("División por cero");
+                return a / b;
+            case '^': return Math.pow(a, b); // Cambiamos ** por ^
+            default: throw new RuntimeException("Operador desconocido: " + op);
+        }
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -65,7 +179,7 @@ public class MiKasa extends javax.swing.JFrame {
         btn5 = new javax.swing.JButton();
         btnSin = new javax.swing.JButton();
         btn6 = new javax.swing.JButton();
-        btnXn = new javax.swing.JButton();
+        btncici = new javax.swing.JButton();
         btnRestar = new javax.swing.JButton();
         btnex = new javax.swing.JButton();
         btnSec = new javax.swing.JButton();
@@ -333,12 +447,12 @@ public class MiKasa extends javax.swing.JFrame {
             }
         });
 
-        btnXn.setBackground(new java.awt.Color(229, 102, 255));
-        btnXn.setText("xⁿ");
-        btnXn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        btnXn.addActionListener(new java.awt.event.ActionListener() {
+        btncici.setBackground(new java.awt.Color(229, 102, 255));
+        btncici.setText("xⁿ");
+        btncici.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        btncici.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnXnActionPerformed(evt);
+                btnciciActionPerformed(evt);
             }
         });
 
@@ -507,7 +621,7 @@ public class MiKasa extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(24, Short.MAX_VALUE)
+                .addContainerGap(26, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(Ventana, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -535,7 +649,7 @@ public class MiKasa extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnSin, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnXn, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btncici, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnex, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -627,7 +741,7 @@ public class MiKasa extends javax.swing.JFrame {
                 .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSin, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnXn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btncici, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnex, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLog, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnIn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -679,7 +793,7 @@ public class MiKasa extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -696,7 +810,7 @@ public class MiKasa extends javax.swing.JFrame {
         String ultimoNumero = obtenerUltimoNumero(displayCompleto);
         if (!ultimoNumero.isEmpty()) {
             double valor = Double.parseDouble(ultimoNumero);
-            double resultado = 1.0 / Math.sin(valor);
+            double resultado = 1.0 / Math.sin(Math.toRadians(valor));
             Ventana.setText(String.valueOf(resultado));
             displayCompleto = String.valueOf(resultado);
         }
@@ -707,12 +821,24 @@ public class MiKasa extends javax.swing.JFrame {
 
     private void btnParentesisIzqActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnParentesisIzqActionPerformed
         // Agrega funcion parentesis izquierda
-        Ventana.setText(Ventana.getText() + "(");
+             if (!displayCompleto.isEmpty()) {
+        char ultimo = displayCompleto.charAt(displayCompleto.length() - 1);
+        // Si el último carácter es número o ), agregar × antes de (
+        if (Character.isDigit(ultimo) || ultimo == ')') {
+            displayCompleto += " × (";
+        } else {
+            displayCompleto += "(";
+        }
+    } else {
+        displayCompleto += "(";
+    }
+    Ventana.setText(displayCompleto);
     }//GEN-LAST:event_btnParentesisIzqActionPerformed
 
     private void btnParantesisDerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnParantesisDerActionPerformed
         // Agrega funcion parentesisi derecha
-        Ventana.setText(Ventana.getText() + ")");
+        displayCompleto += ")";
+    Ventana.setText(displayCompleto);
     }//GEN-LAST:event_btnParantesisDerActionPerformed
 
     private void btn0ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn0ActionPerformed
@@ -723,77 +849,54 @@ Ventana.setText(displayCompleto);
 
     private void btnPorcentajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPorcentajeActionPerformed
         // Agrega funcion porcentaje
-        num1 = Double.parseDouble(Ventana.getText());
-        operacion = "%";
-        Ventana.setText("");
+       try {
+        if (!displayCompleto.isEmpty()) {
+            String[] partes = displayCompleto.split(" ");
+            if (partes.length >= 3) {
+                // Si hay una operación en curso: "numero operador porcentaje"
+                double base = Double.parseDouble(partes[partes.length - 3]);
+                String operador = partes[partes.length - 2];
+                double porcentaje = Double.parseDouble(partes[partes.length - 1]);
+                
+                double resultadoParcial = (base * porcentaje) / 100.0;
+                
+                // Reemplazar la última parte con el cálculo
+                displayCompleto = displayCompleto.substring(0, displayCompleto.lastIndexOf(partes[partes.length - 1])) + resultadoParcial;
+                Ventana.setText(displayCompleto);
+            } else {
+                // Si solo hay un número, calcular su porcentaje
+                String ultimoNumero = obtenerUltimoNumero(displayCompleto);
+                if (!ultimoNumero.isEmpty()) {
+                    double valor = Double.parseDouble(ultimoNumero);
+                    double porcentaje = valor / 100.0;
+                    
+                    int inicio = displayCompleto.lastIndexOf(ultimoNumero);
+                    displayCompleto = displayCompleto.substring(0, inicio) + porcentaje;
+                    Ventana.setText(displayCompleto);
+                }
+            }
+        }
+    } catch (Exception e) {
+        Ventana.setText("Error %");
+    }
     }//GEN-LAST:event_btnPorcentajeActionPerformed
 
     private void btnIgualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIgualActionPerformed
         // Agrega funcion igual
-       try {  
-        String[] partes = displayCompleto.split(" ");
-        if (partes.length < 3) {
-            Ventana.setText("Error: Operación incompleta");
-            return;
-        }
-        
-        String ultimoNumeroStr = partes[partes.length - 1];
-        if (ultimoNumeroStr.isEmpty() || !esNumero(ultimoNumeroStr)) {
-            Ventana.setText("Error: Número inválido");
-            return;
-        }
-        
-        num2 = Double.parseDouble(ultimoNumeroStr);
-        
-        // Calcular resultado
-        switch(operacion) {
-            case "+": 
-                resultado = num1 + num2; 
-                break;
-            case "-": 
-                resultado = num1 - num2; 
-                break;
-            case "*": 
-                resultado = num1 * num2; 
-                break;
-            case "/": 
-                if(num2 != 0) {
-                    resultado = num1 / num2; 
-                } else {
-                    Ventana.setText("Error: Div/0");
-                    return;
-                }
-                break;
-            case "^": 
-                resultado = Math.pow(num1, num2); 
-                break;
-            case "ⁿ√": 
-                // Raíz n-ésima: ⁿ√x = x^(1/n)
-                if (num1 != 0) {
-                    resultado = Math.pow(num2, 1.0/num1);
-                } else {
-                    Ventana.setText("Error: índice 0");
-                    return;
-                }
-                break;
-            default:
-                Ventana.setText("Error: Operación no válida");
-                return;
-        }
+      try {
+        // Evaluar la expresión completa
+        double resultado = evaluarExpresion(displayCompleto);
         
         // Mostrar resultado
-        String resultadoFormateado = String.format("%.6f", resultado).replaceAll("\\.?0*$", "");
+        String resultadoFormateado = String.format("%.10f", resultado).replaceAll("\\.?0*$", "");
         Ventana.setText(resultadoFormateado);
-        
-        // PREPARAR PARA SIGUIENTE OPERACIÓN:
-        num1 = resultado;
         displayCompleto = resultadoFormateado;
+        num1 = resultado;
         
     } catch (Exception e) {
-        Ventana.setText("Error en cálculo");
+        Ventana.setText("Error: " + e.getMessage());
         e.printStackTrace();
     }
-  
     }//GEN-LAST:event_btnIgualActionPerformed
 
     private void btnDividirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDividirActionPerformed
@@ -848,16 +951,18 @@ Ventana.setText(displayCompleto);
     }//GEN-LAST:event_btn9ActionPerformed
 
     private void btnRaiznActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRaiznActionPerformed
-        try {
-        String ultimoNumero = obtenerUltimoNumero(displayCompleto);
-        if (!ultimoNumero.isEmpty()) {
-            num1 = Double.parseDouble(ultimoNumero);
-            displayCompleto += " ⁿ√ ";
-            Ventana.setText(displayCompleto);
-            operacion = "ⁿ√";
-        }
+    try {
+        double valorX = Double.parseDouble(Ventana.getText());
+
+        String inputN = JOptionPane.showInputDialog(this, "Ingresa el índice de la raíz (n):");
+        double indiceN = Double.parseDouble(inputN);
+
+        double resultado = Math.pow(valorX, 1.0 / indiceN);
+
+        Ventana.setText(String.valueOf(resultado));
+
     } catch (Exception e) {
-        Ventana.setText("Error ⁿ√");
+        Ventana.setText("Error");
     }
     }//GEN-LAST:event_btnRaiznActionPerformed
 
@@ -917,7 +1022,7 @@ Ventana.setText(displayCompleto);
         String ultimoNumero = obtenerUltimoNumero(displayCompleto);
         if (!ultimoNumero.isEmpty()) {
             double valor = Double.parseDouble(ultimoNumero);
-            double resultado = Math.sin(valor);
+            double resultado = Math.sin(Math.toRadians(valor));
             Ventana.setText(String.valueOf(resultado));
             displayCompleto = String.valueOf(resultado);
         }
@@ -932,31 +1037,21 @@ Ventana.setText(displayCompleto);
         Ventana.setText(displayCompleto);
     }//GEN-LAST:event_btn6ActionPerformed
 
-    private void btnXnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXnActionPerformed
-         try {
-        // Para potencia necesitamos base y exponente
-        // Vamos a usar el formato: "base ^ exponente"
-        String[] partes = displayCompleto.split(" ");
-        if (partes.length >= 3 && partes[partes.length - 2].equals("^")) {
-            // Ya tenemos base y exponente
-            double base = Double.parseDouble(partes[partes.length - 3]);
-            double exponente = Double.parseDouble(partes[partes.length - 1]);
-            double resultado = Math.pow(base, exponente);
-            Ventana.setText(String.valueOf(resultado));
-            displayCompleto = String.valueOf(resultado);
-        } else {
-            // Si no hay operación previa, preparar para ingresar exponente
-            String ultimoNumero = obtenerUltimoNumero(displayCompleto);
-            if (!ultimoNumero.isEmpty()) {
-                displayCompleto += " ^ ";
-                Ventana.setText(displayCompleto);
-                operacion = "^";
-            }
-        }
+    private void btnciciActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnciciActionPerformed
+       try {
+        double base = Double.parseDouble(Ventana.getText());
+
+        String inputN = JOptionPane.showInputDialog(this, "Ingresa el exponente n:");
+        double exponente = Double.parseDouble(inputN);
+
+        double resultado = Math.pow(base, exponente);
+
+        Ventana.setText(String.valueOf(resultado));
+
     } catch (Exception e) {
-        Ventana.setText("Error x^n");
+        Ventana.setText("Error");
     }
-    }//GEN-LAST:event_btnXnActionPerformed
+    }//GEN-LAST:event_btnciciActionPerformed
 
     private void btnRestarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRestarActionPerformed
         //  Agrega funcion suma
@@ -1146,7 +1241,7 @@ Ventana.setText(displayCompleto);
         String ultimoNumero = obtenerUltimoNumero(displayCompleto);
         if (!ultimoNumero.isEmpty()) {
             double valor = Double.parseDouble(ultimoNumero);
-            double resultado = Math.cos(valor);
+            double resultado = Math.cos(Math.toRadians(valor));
             Ventana.setText(String.valueOf(resultado));
             displayCompleto = String.valueOf(resultado);
         }
@@ -1160,7 +1255,7 @@ Ventana.setText(displayCompleto);
         String ultimoNumero = obtenerUltimoNumero(displayCompleto);
         if (!ultimoNumero.isEmpty()) {
             double valor = Double.parseDouble(ultimoNumero);
-            double resultado = Math.tan(valor);
+            double resultado = Math.tan(Math.toRadians(valor));
             Ventana.setText(String.valueOf(resultado));
             displayCompleto = String.valueOf(resultado);
         }
@@ -1174,7 +1269,7 @@ Ventana.setText(displayCompleto);
         String ultimoNumero = obtenerUltimoNumero(displayCompleto);
         if (!ultimoNumero.isEmpty()) {
             double valor = Double.parseDouble(ultimoNumero);
-            double resultado = 1.0 / Math.tan(valor);
+            double resultado = 1.0 / Math.tan(Math.toRadians(valor));
             Ventana.setText(String.valueOf(resultado));
             displayCompleto = String.valueOf(resultado);
         }
@@ -1188,7 +1283,7 @@ Ventana.setText(displayCompleto);
         String ultimoNumero = obtenerUltimoNumero(displayCompleto);
         if (!ultimoNumero.isEmpty()) {
             double valor = Double.parseDouble(ultimoNumero);
-            double resultado = 1.0 / Math.cos(valor);
+            double resultado = 1.0 / Math.cos(Math.toRadians(valor));
             Ventana.setText(String.valueOf(resultado));
             displayCompleto = String.valueOf(resultado);
         }
@@ -1250,16 +1345,15 @@ Ventana.setText(displayCompleto);
     }//GEN-LAST:event_btnArctanActionPerformed
 
     private void btnexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnexActionPerformed
-         try {
-        String ultimoNumero = obtenerUltimoNumero(displayCompleto);
-        if (!ultimoNumero.isEmpty()) {
-            double valor = Double.parseDouble(ultimoNumero);
-            double resultado = Math.exp(valor);
-            Ventana.setText(String.valueOf(resultado));
-            displayCompleto = String.valueOf(resultado);
-        }
+          try {
+        double valor = Double.parseDouble(Ventana.getText());
+
+        double resultado = Math.exp(valor);  // e^x
+
+        Ventana.setText(String.valueOf(resultado));
+
     } catch (Exception e) {
-        Ventana.setText("Error e^x");
+        Ventana.setText("Error");
     }
     }//GEN-LAST:event_btnexActionPerformed
 
@@ -1422,7 +1516,7 @@ Ventana.setText(displayCompleto);
     private javax.swing.JButton btnSin;
     private javax.swing.JButton btnSumar;
     private javax.swing.JButton btnX;
-    private javax.swing.JButton btnXn;
+    private javax.swing.JButton btncici;
     private javax.swing.JButton btnex;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables

@@ -23,7 +23,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
+          <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -47,7 +47,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace pref="24" max="32767" attributes="0"/>
+                  <EmptySpace pref="26" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="Ventana" alignment="0" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
@@ -77,7 +77,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="btnSin" min="-2" pref="65" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="btnXn" min="-2" pref="65" max="-2" attributes="0"/>
+                          <Component id="btncici" min="-2" pref="65" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="btnex" min="-2" pref="65" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -183,7 +183,7 @@
                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="btnSin" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
-                      <Component id="btnXn" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                      <Component id="btncici" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                       <Component id="btnex" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                       <Component id="btnLog" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                       <Component id="btnIn" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
@@ -675,7 +675,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn6ActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnXn">
+        <Component class="javax.swing.JButton" name="btncici">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="66" red="e5" type="rgb"/>
@@ -688,7 +688,7 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnXnActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnciciActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnRestar">
